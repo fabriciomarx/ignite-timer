@@ -12,17 +12,21 @@ import {
 } from './styles'
 
 export function Home() {
-  const { register, handleSubmit, watch } = useForm();
+  const { register, handleSubmit, watch, reset } = useForm({
+    defaultValues: {
+      task: '',
+      minutesAmout: 0
+    }
+  });
 
   function handleCreateNewCycle(data: any) {
     console.log(data);
+    reset() // So reseta caso eu coloca os defaultValues (linha 16)
   }
 
   const task = watch('task');
   const isSubmitDisabled = !task // Variavel auxiliar para melhorar a legibilidade do codigo
 
-  console.log(task);
-  
   
   return (
     <HomeContainer>
