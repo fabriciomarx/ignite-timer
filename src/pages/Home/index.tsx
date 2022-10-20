@@ -1,4 +1,5 @@
 import { Play } from 'phosphor-react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import {
@@ -11,16 +12,39 @@ import {
   StartCountdownButton
 } from './styles'
 
+interface Cycle {
+  id: string
+  task: string
+  minutesAmount: number
+}
+
 export function Home() {
+  const [cycles, setCycles] = useState<Cycle[]>([])
+  const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
+
   const { register, handleSubmit, watch, reset } = useForm({
     defaultValues: {
       task: '',
-      minutesAmout: 0
+      minutesAmount: 0
     }
   });
 
+  
+  const activeCycle = cycles.find((cycle) => cycle.id == activeCycleId)
+
   function handleCreateNewCycle(data: any) {
-    console.log(data);
+    const newCycle : Cycle = {
+      id: String(new Date().getTime()),
+      minutesAmount: data.minutesAmount,
+      task: data.task
+
+    }
+
+    setActiveCycleId(String(new Date().getTime()))
+
+    // quando uma alteracao de estado depende do valor anterior utilizar arrow function
+    setCycles((state) => [...state, newCycle]) 
+
     reset() // So reseta caso eu coloca os defaultValues (linha 16)
   }
 
