@@ -59,6 +59,8 @@ export function Home() {
     // quando uma alteracao de estado depende do valor anterior utilizar arrow function
     setCycles((state) => [...state, newCycle]) 
 
+    setAmoutSecondsPassed(0) // limpa os segundos (para criar um novo ciclo)
+
     reset() // So reseta caso eu coloca os defaultValues (linha 16)
   }
 
@@ -66,13 +68,19 @@ export function Home() {
   const isSubmitDisabled = !task // Variavel auxiliar para melhorar a legibilidade do codigo
 
   useEffect(() => {
+    let interval: number;
+
     if(activeCycle){
-      setInterval(() => {
+      interval = setInterval(() => {
         setAmoutSecondsPassed(
           differenceInSeconds(
             new Date(), activeCycle.startDate
           ))
       }, 1000)
+
+      return () => {
+        clearInterval(interval)
+      }
 
     }
 
