@@ -1,6 +1,7 @@
 import { Play } from 'phosphor-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { differenceInSeconds } from 'date-fns'
 
 import {
   CountdownContainer,
@@ -15,12 +16,14 @@ import {
 interface Cycle {
   id: string
   task: string
-  minutesAmount: number
+  minutesAmount: number,
+  startDate: Date
 }
 
 export function Home() {
   const [cycles, setCycles] = useState<Cycle[]>([])
   const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
+  const [amountSecondsPassed, setAmoutSecondsPassed] = useState(0)
 
   const { register, handleSubmit, watch, reset } = useForm({
     defaultValues: {
@@ -29,14 +32,25 @@ export function Home() {
     }
   });
 
-  
   const activeCycle = cycles.find((cycle) => cycle.id == activeCycleId)
+
+  const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
+
+  const currentSeconds = activeCycle ? totalSeconds - amountSecondsPassed : 0
+
+  const minutesAmout = Math.floor(currentSeconds / 60) // minutos inteiros, arredondar para baixo (math.floor)
+
+  const secondsAmout = currentSeconds % 60
+
+  const minutes = String(minutesAmout).padStart(2, '0')  
+  const seconds = String(secondsAmout).padStart(2, '0')  
 
   function handleCreateNewCycle(data: any) {
     const newCycle : Cycle = {
       id: String(new Date().getTime()),
       minutesAmount: data.minutesAmount,
-      task: data.task
+      task: data.task,
+      startDate: new Date()
 
     }
 
@@ -51,7 +65,19 @@ export function Home() {
   const task = watch('task');
   const isSubmitDisabled = !task // Variavel auxiliar para melhorar a legibilidade do codigo
 
-  
+  useEffect(() => {
+    if(activeCycle){
+      setInterval(() => {
+        setAmoutSecondsPassed(
+          differenceInSeconds(
+            new Date(), activeCycle.startDate
+          ))
+      }, 1000)
+
+    }
+
+  }, [activeCycle])
+
   return (
     <HomeContainer>
       <form onSubmit={handleSubmit(handleCreateNewCycle)}>
@@ -87,11 +113,11 @@ export function Home() {
         </FormContainer>
 
         <CountdownContainer>
-          <span>0</span>
-          <span>0</span>
+          <span>{minutes[0]}</span>
+          <span>{minutes[1]}</span>
           <Separator>:</Separator>
-          <span>0</span>
-          <span>0</span>
+          <span>{seconds[0]}</span>
+          <span>{seconds[1]}</span>
         </CountdownContainer>
 
         <StartCountdownButton disabled={isSubmitDisabled} type="submit">
