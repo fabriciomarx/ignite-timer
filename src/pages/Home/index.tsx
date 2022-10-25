@@ -74,23 +74,41 @@ export function Home() {
 
     if(activeCycle){
       interval = setInterval(() => {
-        setAmoutSecondsPassed(
-          differenceInSeconds(
-            new Date(), activeCycle.startDate
-          ))
-      }, 1000)
+      
+      const secondsDifference = differenceInSeconds(
+          new Date(), 
+          activeCycle.startDate
+        )
 
-      return () => {
+      if(secondsDifference >= totalSeconds){
+        setCycles(state => 
+          state.map((cycle) => {
+            if(cycle.id === activeCycle)
+              return { ...cycle, interruptDate: new Date()}
+            else 
+              return cycle
+          })
+        ) 
+
+        setAmoutSecondsPassed(totalSeconds)
         clearInterval(interval)
+      } else {
+        setAmoutSecondsPassed(secondsDifference)
       }
-
+      
+      }, 1000)
     }
 
-  }, [activeCycle])
+    return () => {
+      clearInterval(interval)
+    }
+
+
+  }, [activeCycle, totalSeconds, activeCycleId])
 
   function handleStopCycle() {
-    setCycles(
-      cycles.map((cycle) => {
+    setCycles(state => 
+      state.map((cycle) => {
         if(cycle.id === activeCycle)
           return { ...cycle, interruptDate: new Date()}
         else 
